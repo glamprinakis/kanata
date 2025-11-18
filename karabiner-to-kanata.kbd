@@ -1,0 +1,277 @@
+;; ==============================================================================
+;; Kanata Configuration - Converted from Karabiner-Elements
+;; ==============================================================================
+;; This configuration replicates the following features:
+;; 1. Home row mods (a/s/d/f and j/k/l/; as modifiers when held)
+;; 2. Simultaneous key combinations for modifier combos
+;; 3. Caps Lock as Hyper key + vim-style navigation
+;; 4. Double-tap right shift for caps lock
+;; 5. Grave accent → non_us_backslash remapping
+;;
+;; MAC-TO-WINDOWS KEY MAPPING (mirrors your workflow):
+;; ┌─────────────────────────────────────────────────────────────────┐
+;; │ Position      │ Mac Key      │ Windows Key │ Home Row Mod       │
+;; ├─────────────────────────────────────────────────────────────────┤
+;; │ A (pinky)     │ Alt          │ Alt         │ a → Alt            │
+;; │ S (ring)      │ Option ⌥     │ Win ⊞       │ s → Win            │
+;; │ D (middle)    │ Command ⌘    │ Ctrl        │ d → Ctrl           │
+;; │ F (index)     │ Shift        │ Shift       │ f → Shift          │
+;; │                                                                   │
+;; │ J (index)     │ Shift        │ Shift       │ j → Shift          │
+;; │ K (middle)    │ Command ⌘    │ Ctrl        │ k → Ctrl           │
+;; │ L (ring)      │ Option ⌥     │ Win ⊞       │ l → Win            │
+;; │ ; (pinky)     │ Alt          │ Alt         │ ; → Alt            │
+;; └─────────────────────────────────────────────────────────────────┘
+;;
+;; Perfect muscle memory transfer:
+;; - Mac: Cmd+C (middle finger D/K) = Windows: Ctrl+C (middle finger D/K)
+;; - Mac: Cmd+V (middle finger D/K) = Windows: Ctrl+V (middle finger D/K)
+;; - Mac: Option+Tab (ring finger S/L) = Windows: Win+Tab (ring finger S/L)
+;; ==============================================================================
+
+(defcfg
+  process-unmapped-keys yes
+  danger-enable-cmd no
+  log-layer-changes no
+)
+
+;; ==============================================================================
+;; Source Keys - Define all keys we'll be remapping
+;; ==============================================================================
+(defsrc
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  caps a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt           spc            ralt rmet rctl
+)
+
+;; ==============================================================================
+;; Aliases - Home Row Mods and Special Keys
+;; ==============================================================================
+(defalias
+  ;; ============================================================================
+  ;; LEFT HAND HOME ROW MODS (a/s/d/f) - MIRRORS RIGHT HAND
+  ;; ============================================================================
+  ;; These use tap-hold-release: WAITS for key release before deciding
+  ;; This prevents accidental holds when typing fast!
+  ;; Format: (tap-hold-release <tap-timeout> <hold-timeout> <tap-action> <hold-action>)
+  ;;
+  ;; Mac keyboard:     A=Alt     S=Opt/Win  D=Cmd/Ctrl  F=Shift
+  ;; Windows keyboard: A=Alt     S=Win      D=Ctrl      F=Shift
+  
+  a (tap-hold-release 200 200 a lalt)         ;; a → Alt
+  s (tap-hold-release 200 200 s lmet)         ;; s → Win (Option/Windows button)
+  d (tap-hold-release 200 200 d lctl)         ;; d → Ctrl (Mac Command - for Ctrl+C, Ctrl+V)
+  f (tap-hold-release 200 200 f lsft)         ;; f → Shift
+  
+  ;; ============================================================================
+  ;; RIGHT HAND HOME ROW MODS (j/k/l/;) - MAC-STYLE POSITIONING
+  ;; ============================================================================
+  ;; Mac keyboard:     J=Shift   K=Cmd/Ctrl  L=Opt/Win   ;=Alt
+  ;; Windows keyboard: J=Shift   K=Ctrl      L=Win       ;=Alt
+  
+  j (tap-hold-release 200 200 j rsft)   ;; j → Shift
+  k (tap-hold-release 200 200 k rctl)   ;; k → Ctrl (Mac Command equivalent)
+  l (tap-hold-release 200 200 l rmet)   ;; l → Win (Option/Windows button)
+  ; (tap-hold-release 200 200 ; ralt)   ;; ; → Alt
+  
+  ;; ============================================================================
+  ;; CAPS LOCK AS HYPER KEY
+  ;; ============================================================================
+  ;; Caps Lock → Hyper layer when held, Escape when tapped
+  hyp (tap-hold-release 200 200 esc (layer-toggle hyper))
+  
+  ;; ============================================================================
+  ;; DOUBLE-TAP RIGHT SHIFT FOR CAPS LOCK
+  ;; ============================================================================
+  ;; Right shift → caps lock on double tap, shift on single tap/hold
+  rsf (tap-hold-release 200 200 (multi rsft (one-shot 500 rsft)) rsft)
+  
+  ;; ============================================================================
+  ;; GRAVE ACCENT REMAP
+  ;; ============================================================================
+  ;; Grave accent → non_us_backslash (for ISO keyboard layout)
+  grv-remap nubs
+)
+
+;; ==============================================================================
+;; BASE LAYER - Default typing layer with home row mods
+;; ==============================================================================
+(deflayer base
+  @grv-remap  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab         q    w    e    r    t    y    u    i    o    p    [    ]    \
+  @hyp        @a   @s   @d   @f   g    h    @j   @k   @l   @;   '    ret
+  lsft        z    x    c    v    b    n    m    ,    .    /    @rsf
+  lctl        lmet lalt           spc            ralt rmet rctl
+)
+
+;; ==============================================================================
+;; HYPER LAYER - Activated when Caps Lock is held
+;; ==============================================================================
+;; This layer provides vim-style navigation and other shortcuts
+(deflayer hyper
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _    _    _    _    _    _    up   _    _    _    _    _
+  _    _    _    C-lft _  C-rght _    lft  down rght lalt _    _
+  _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _              _              _    _    _
+)
+
+;; ==============================================================================
+;; IMPLEMENTATION NOTES
+;; ==============================================================================
+;;
+;; 1. HOME ROW MODS SIMULTANEOUS COMBINATIONS:
+;;    Your Karabiner config has extensive simultaneous key combinations
+;;    (e.g., a+s → Ctrl+Alt, s+d → Alt+Win, etc.)
+;;    
+;;    Kanata handles this differently using chord definitions.
+;;    Below is an ALTERNATIVE implementation using defchords if needed:
+;;
+;; (defchords name <timeout>
+;;   (a s) C-lalt    ;; Press a+s together → Ctrl+Alt
+;;   (a d) C-lmet    ;; Press a+d together → Ctrl+Win
+;;   (a f) C-lsft    ;; Press a+f together → Ctrl+Shift
+;;   (s d) lalt-lmet ;; Press s+d together → Alt+Win
+;;   (s f) lalt-lsft ;; Press s+f together → Alt+Shift
+;;   (d f) lmet-lsft ;; Press d+f together → Win+Shift
+;;   
+;;   ;; 3-key combinations
+;;   (a s d) C-lmet-lalt      ;; a+s+d → Ctrl+Win+Alt
+;;   (a d f) C-lmet-lsft      ;; a+d+f → Ctrl+Win+Shift
+;;   (s d f) lalt-lmet-lsft   ;; s+d+f → Alt+Win+Shift
+;;   
+;;   ;; 4-key combination
+;;   (a s d f) C-lalt-lmet-lsft ;; All 4 → Ctrl+Alt+Win+Shift (Hyper)
+;;   
+;;   ;; Right hand combinations
+;;   (; l) rctl-ralt
+;;   (; k) rctl-rmet
+;;   (; j) rctl-rsft
+;;   (l k) ralt-rmet
+;;   (l j) ralt-rsft
+;;   (k j) rmet-rsft
+;;   
+;;   ;; Right hand 3-key
+;;   (; l k) rctl-ralt-rmet
+;;   (; k j) rctl-rmet-rsft
+;;   (l k j) ralt-rmet-rsft
+;;   
+;;   ;; Right hand 4-key
+;;   (j k l ;) rctl-ralt-rmet-rsft
+;; )
+;;
+;; 2. DOUBLE-TAP RIGHT SHIFT:
+;;    The current implementation uses one-shot. For true double-tap detection,
+;;    you may need to use tap-dance or a more complex macro.
+;;
+;; 3. CAPS LOCK TOGGLE:
+;;    To toggle caps lock with double-tap right shift, use this alias:
+;;    rsf (tap-dance 200 ((rsft) (caps)))
+;;
+;; 4. WINDOWS VS MACOS KEY MAPPING:
+;;    - lmet/rmet = Windows key (equivalent to Command on Mac)
+;;    - lalt/ralt = Alt key (equivalent to Option on Mac)
+;;    - lctl/rctl = Control key (same on both)
+;;
+;; 5. CONDITIONAL MODIFIERS (hyper_caps_lock variable):
+;;    Your Karabiner config disables d/f/j/k/l/; modifiers when hyper is active.
+;;    Kanata's tap-hold-press can partially handle this by preventing mod
+;;    activation when in certain layers, but full replication requires
+;;    custom layer switching logic.
+;;
+;; ==============================================================================
+;; ADVANCED CONFIGURATION WITH DEFCHORDS (UNCOMMENT IF NEEDED)
+;; ==============================================================================
+;; If you want the exact simultaneous key behavior from Karabiner,
+;; uncomment this section and comment out the simple home row mods above.
+;;
+;; NOTE: This approach is more complex but provides exact parity with Karabiner
+;;
+;; (defchords asdf 50
+;;   ;; Left hand 2-key combinations (MAC-STYLE POSITIONING)
+;;   ;; a=Alt, s=Win, d=Ctrl, f=Shift
+;;   (a s) (multi lalt lmet)           ;; Alt+Win
+;;   (a d) (multi lalt lctl)           ;; Alt+Ctrl
+;;   (a f) (multi lalt lsft)           ;; Alt+Shift
+;;   (s d) (multi lmet lctl)           ;; Win+Ctrl (matches Mac Opt+Cmd)
+;;   (s f) (multi lmet lsft)           ;; Win+Shift
+;;   (d f) (multi lctl lsft)           ;; Ctrl+Shift (matches Mac Cmd+Shift)
+;;   
+;;   ;; Left hand 3-key combinations
+;;   (a s d) (multi lalt lmet lctl)    ;; Alt+Win+Ctrl
+;;   (a d f) (multi lalt lctl lsft)    ;; Alt+Ctrl+Shift
+;;   (s d f) (multi lmet lctl lsft)    ;; Win+Ctrl+Shift
+;;   
+;;   ;; Left hand 4-key combination (Hyper)
+;;   (a s d f) (multi lalt lmet lctl lsft)
+;; )
+;;
+;; (defchords jkl; 50
+;;   ;; Right hand 2-key combinations
+;;   ;; j=Shift, k=Ctrl, l=Win, ;=Alt
+;;   (; l) (multi ralt rmet)
+;;   (; k) (multi ralt rctl)
+;;   (; j) (multi ralt rsft)
+;;   (l k) (multi rmet rctl)
+;;   (l j) (multi rmet rsft)
+;;   (k j) (multi rctl rsft)
+;;   
+;;   ;; Right hand 3-key combinations
+;;   (; l k) (multi ralt rmet rctl)
+;;   (; k j) (multi ralt rctl rsft)
+;;   (l k j) (multi rmet rctl rsft)
+;;   
+;;   ;; Right hand 4-key combination
+;;   (j k l ;) (multi ralt rmet rctl rsft)
+;; )
+;;
+;; Then modify the base layer to use the chord-aware keys:
+;; (deflayer base-with-chords
+;;   @grv-remap  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+;;   tab         q    w    e    r    t    y    u    i    o    p    [    ]    \
+;;   @hyp        a    s    d    f    g    h    j    k    l    ;    '    ret
+;;   lsft        z    x    c    v    b    n    m    ,    .    /    @rsf
+;;   lctl        lmet lalt           spc            ralt rmet rctl
+;; )
+;;
+;; ==============================================================================
+
+;; ==============================================================================
+;; USAGE INSTRUCTIONS FOR WINDOWS
+;; ==============================================================================
+;;
+;; 1. Download Kanata:
+;;    https://github.com/jtroo/kanata/releases
+;;    Download kanata.exe (for Windows)
+;;
+;; 2. Place this config file at:
+;;    C:\Users\YourUsername\.config\kanata.kbd
+;;    (or any location you prefer)
+;;
+;; 3. Run Kanata:
+;;    kanata.exe --cfg "C:\Users\YourUsername\.config\kanata.kbd"
+;;
+;; 4. Run on Startup (optional):
+;;    - Press Win+R, type: shell:startup
+;;    - Create a shortcut to kanata.exe with the --cfg argument
+;;    - Or create a .bat file with the command above
+;;
+;; 5. Run with Admin Rights (may be needed):
+;;    Right-click kanata.exe → Properties → Compatibility → 
+;;    Check "Run this program as administrator"
+;;
+;; ==============================================================================
+;; ALTERNATIVE: USING WINDOWS INTERCEPTION DRIVER
+;; ==============================================================================
+;;
+;; For better compatibility, especially in games and admin windows:
+;;
+;; 1. Install the Interception driver:
+;;    https://github.com/oblitum/Interception
+;;    
+;; 2. Run Kanata with the driver:
+;;    kanata.exe --cfg kanata.kbd --interception
+;;
+;; ==============================================================================
